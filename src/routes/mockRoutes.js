@@ -1,33 +1,19 @@
 const express = require("express");
 const router = express.Router();
 
-const { users, products, orders } = require("../data/mockData");
+const {
+    fetchUsers,
+    fetchProducts,
+    fetchOrders
+} = require("../controllers/mockController");
 
-// GET Users
-router.get("/api/users", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Users fetched successfully",
-    data: users,
-  });
-});
+// Users Route
+router.get("/api/users", fetchUsers);
 
-// GET Products
-router.get("/api/products", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Products fetched successfully",
-    data: products,
-  });
-});
+// Products Route
+router.get("/api/products", fetchProducts);
 
-// GET Orders
-router.get("/api/orders", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Orders fetched successfully",
-    data: orders,
-  });
-});
+// Orders Route
+router.get("/api/orders", fetchOrders);
 
 module.exports = router;

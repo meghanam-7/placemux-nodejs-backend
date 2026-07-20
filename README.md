@@ -92,6 +92,20 @@ task1-node-server
 
 ---
 
+## ✅ Day 3 – API Architecture
+
+- Designed a scalable layered backend architecture
+- Created Controller layer (`mockController.js`)
+- Created Service layer (`mockService.js`)
+- Refactored routes to delegate request handling to controllers
+- Moved business logic into the service layer
+- Implemented Separation of Concerns
+- Maintained RESTful API structure
+- Added basic request-level error handling using `try-catch`
+- Successfully tested all APIs using Postman
+
+---
+
 ## 🚀 Current Status
 
 **Phase 1 Progress:** **Day 2 Completed**
@@ -103,6 +117,10 @@ task1-node-server
 - ✅ Modular Routing
 - ✅ Mock API Development
 - ✅ Professional Project Structure
+- ✅ Layered API Architecture
+- ✅ Controllers
+- ✅ Services
+- ✅ Separation of Concerns
 
 ### Upcoming Features
 
