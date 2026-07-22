@@ -5,9 +5,9 @@ const {
 } = require("../services/mockService");
 
 // Get Users
-const fetchUsers = (req, res) => {
+const fetchUsers = async (req, res) => {
     try {
-        const users = getAllUsers();
+        const users = await getAllUsers();
 
         res.status(200).json({
             success: true,
@@ -17,15 +17,16 @@ const fetchUsers = (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Failed to fetch users"
+            message: "Failed to fetch users",
+            error: error.message
         });
     }
 };
 
 // Get Products
-const fetchProducts = (req, res) => {
+const fetchProducts = async (req, res) => {
     try {
-        const products = getAllProducts();
+        const products = await getAllProducts();
 
         res.status(200).json({
             success: true,
@@ -35,15 +36,16 @@ const fetchProducts = (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Failed to fetch products"
+            message: "Failed to fetch products",
+            error: error.message
         });
     }
 };
 
 // Get Orders
-const fetchOrders = (req, res) => {
+const fetchOrders = async (req, res) => {
     try {
-        const orders = getAllOrders();
+        const orders = await getAllOrders();
 
         res.status(200).json({
             success: true,
@@ -53,7 +55,8 @@ const fetchOrders = (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Failed to fetch orders"
+            message: "Failed to fetch orders",
+            error: error.message
         });
     }
 };

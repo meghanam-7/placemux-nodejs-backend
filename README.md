@@ -6,7 +6,7 @@ This project was created as part of the **PlaceMux (Altrodav Technologies) Phase
 
 The objective of this project is to build a clean, scalable, and industry-standard Node.js backend using **Express.js**, while following professional software development practices.
 
-Throughout this journey, the project evolves from a basic Express server into a complete backend application featuring modular architecture, RESTful APIs, PostgreSQL database integration, Prisma ORM, authentication, middleware, and production-ready backend practices.
+Throughout this journey, the project evolves from a basic Express server into a complete backend application featuring modular architecture, RESTful APIs, PostgreSQL database integration, Prisma ORM, repository-based persistence, authentication, middleware, and production-ready backend practices.
 
 ---
 
@@ -36,12 +36,15 @@ task1-node-server
 │
 ├── src
 │   ├── config
+│   │   └── prismaClient.js
 │   ├── controllers
 │   ├── data
 │   │   └── mockData.js
-│   ├── generated
-│   │   └── prisma
 │   ├── middleware
+│   ├── persistence
+│   │   ├── userRepository.js
+│   │   ├── productRepository.js
+│   │   └── orderRepository.js
 │   ├── routes
 │   │   ├── healthRoutes.js
 │   │   ├── sampleRoutes.js
@@ -54,7 +57,6 @@ task1-node-server
 ├── .gitignore
 ├── package.json
 ├── package-lock.json
-├── prisma.config.ts
 └── README.md
 ```
 
@@ -66,11 +68,9 @@ task1-node-server
 |---------|----------|-------------|
 | GET | `/health` | Check server health |
 | GET | `/hello` | Sample API response |
-| GET | `/api/users` | Returns mock user data |
-| GET | `/api/products` | Returns mock product data |
-| GET | `/api/orders` | Returns mock order data |
-
-> Database integration with these APIs will be implemented in the upcoming tasks.
+| GET | `/api/users` | Returns user data from PostgreSQL |
+| GET | `/api/products` | Returns product data from PostgreSQL |
+| GET | `/api/orders` | Returns order data from PostgreSQL |
 
 ---
 
@@ -133,21 +133,33 @@ task1-node-server
 
 ---
 
+## ✅ Day 5 – Persistence Layer
+
+- Integrated Prisma Client with Express.js
+- Implemented Repository Pattern for database access
+- Connected application to live PostgreSQL database
+- Replaced mock user retrieval with real database queries
+- Implemented CRUD operations in the User Repository
+- Added transaction support using Prisma `$transaction()`
+- Added graceful database error handling
+- Successfully tested live database APIs using Postman
+- Verified end-to-end data flow from Express → Repository → Prisma → PostgreSQL
+
+---
+
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 4 Completed**
+**Phase 1 Progress:** **Day 5 Completed**
 
 ### ✅ Completed Features
 
 - Express Server Setup
 - Environment Configuration
 - Modular Routing
-- Mock API Development
-- Professional Project Structure
 - Layered API Architecture
 - Controllers
 - Services
-- Separation of Concerns
+- Repository Pattern
 - PostgreSQL Integration
 - Prisma ORM
 - Relational Database Design
@@ -155,15 +167,18 @@ task1-node-server
 - Database Relationships
 - Real Sample Data
 - Prisma Studio
+- Database-driven APIs
+- CRUD Repository Methods
+- Transaction Support
+- Database Error Handling
 
 ### ⏳ Upcoming Features
 
-- Database-driven APIs
-- CRUD Operations
-- Validation
-- Middleware
 - Authentication & Authorization
-- Error Handling
+- Middleware Enhancements
+- Input Validation
+- JWT Authentication
+- Role-Based Access Control
 - API Documentation
 - Production Deployment
 
@@ -202,10 +217,12 @@ Key learning areas include:
 - REST API Development
 - Backend Project Architecture
 - Controllers & Services
+- Repository Pattern
 - PostgreSQL
 - Prisma ORM
 - Database Design
 - Database Migrations
+- Transactions
 - Middleware
 - Authentication & Authorization
 - Backend Best Practices
