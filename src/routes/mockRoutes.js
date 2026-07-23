@@ -1,5 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const {
+    authenticateToken,
+} = require("../middleware/authMiddleware");
 
 const {
     fetchUsers,
@@ -8,7 +11,11 @@ const {
 } = require("../controllers/mockController");
 
 // Users Route
-router.get("/api/users", fetchUsers);
+router.get(
+    "/api/users",
+    authenticateToken,
+    fetchUsers
+);
 
 // Products Route
 router.get("/api/products", fetchProducts);

@@ -6,7 +6,7 @@ This project was created as part of the **PlaceMux (Altrodav Technologies) Phase
 
 The objective of this project is to build a clean, scalable, and industry-standard Node.js backend using **Express.js**, while following professional software development practices.
 
-Throughout this journey, the project evolves from a basic Express server into a complete backend application featuring modular architecture, RESTful APIs, PostgreSQL database integration, Prisma ORM, repository-based persistence, authentication, middleware, and production-ready backend practices.
+Throughout this journey, the project evolves from a basic Express server into a complete backend application featuring modular architecture, RESTful APIs, PostgreSQL database integration, Prisma ORM, repository-based persistence, secure authentication, middleware, and production-ready backend practices.
 
 ---
 
@@ -16,12 +16,14 @@ Throughout this journey, the project evolves from a basic Express server into a 
 - Express.js
 - PostgreSQL
 - Prisma ORM
+- bcrypt
+- JSON Web Token (JWT)
+- Helmet
+- Express Rate Limit
 - dotenv
 - Nodemon
 - Git & GitHub
 - Postman
-
-> More technologies will be added as the project progresses.
 
 ---
 
@@ -37,19 +39,33 @@ task1-node-server
 ├── src
 │   ├── config
 │   │   └── prismaClient.js
+│   │
 │   ├── controllers
+│   │   ├── authController.js
+│   │   └── mockController.js
+│   │
 │   ├── data
 │   │   └── mockData.js
+│   │
 │   ├── middleware
+│   │   ├── authMiddleware.js
+│   │   └── rateLimiter.js
+│   │
 │   ├── persistence
 │   │   ├── userRepository.js
 │   │   ├── productRepository.js
 │   │   └── orderRepository.js
+│   │
 │   ├── routes
+│   │   ├── authRoutes.js
 │   │   ├── healthRoutes.js
 │   │   ├── sampleRoutes.js
 │   │   └── mockRoutes.js
+│   │
 │   ├── services
+│   │   ├── authService.js
+│   │   └── mockService.js
+│   │
 │   ├── utils
 │   └── server.js
 │
@@ -68,9 +84,11 @@ task1-node-server
 |---------|----------|-------------|
 | GET | `/health` | Check server health |
 | GET | `/hello` | Sample API response |
-| GET | `/api/users` | Returns user data from PostgreSQL |
+| GET | `/api/users` | Returns user data from PostgreSQL (Protected Route) |
 | GET | `/api/products` | Returns product data from PostgreSQL |
 | GET | `/api/orders` | Returns order data from PostgreSQL |
+| POST | `/auth/signup` | Register a new user |
+| POST | `/auth/login` | Authenticate user and generate JWT |
 
 ---
 
@@ -147,9 +165,26 @@ task1-node-server
 
 ---
 
+## ✅ Day 6 – Authentication & Security
+
+- Extended the User model with password and role fields
+- Applied database migration for authentication
+- Implemented secure password hashing using bcrypt
+- Built User Signup API
+- Built User Login API
+- Generated JWT tokens after successful authentication
+- Implemented JWT Authentication Middleware
+- Protected sensitive API routes
+- Added Helmet for HTTP security headers
+- Added Express Rate Limiter to prevent brute-force attacks
+- Stored JWT secret securely using environment variables
+- Successfully tested authentication flow using Postman
+
+---
+
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 5 Completed**
+**Phase 1 Progress:** **Day 6 Completed**
 
 ### ✅ Completed Features
 
@@ -171,16 +206,22 @@ task1-node-server
 - CRUD Repository Methods
 - Transaction Support
 - Database Error Handling
+- User Authentication
+- Password Hashing (bcrypt)
+- JWT Authentication
+- Protected Routes
+- Helmet Security
+- Rate Limiting
 
 ### ⏳ Upcoming Features
 
-- Authentication & Authorization
-- Middleware Enhancements
 - Input Validation
-- JWT Authentication
-- Role-Based Access Control
+- Role-Based Authorization
+- Global Error Handling
+- Logging
 - API Documentation
 - Production Deployment
+- Testing
 
 ---
 
@@ -223,9 +264,11 @@ Key learning areas include:
 - Database Design
 - Database Migrations
 - Transactions
-- Middleware
 - Authentication & Authorization
-- Backend Best Practices
+- JWT Authentication
+- Password Hashing
+- Express Middleware
+- Backend Security Best Practices
 - API Design
 - Git & GitHub Workflow
 

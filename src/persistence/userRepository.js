@@ -18,6 +18,15 @@ async function getUserById(id) {
     });
 }
 
+// Get user by email
+async function getUserByEmail(email) {
+    return await prisma.user.findUnique({
+        where: {
+            email,
+        },
+    });
+}
+
 // Create user
 async function createUser(userData) {
     try {
@@ -39,7 +48,7 @@ async function updateUser(id, userData) {
             data: userData,
         });
     } catch (error) {
-        throw new Error(`Database error while creating user: ${error.message}`);
+        throw new Error(`Database error while updating user: ${error.message}`);
     }
 }
 
@@ -52,7 +61,7 @@ async function deleteUser(id) {
             },
         });
     } catch (error) {
-        throw new Error(`Database error while creating user: ${error.message}`);
+        throw new Error(`Database error while deleting user: ${error.message}`);
     }
 }
 
@@ -78,6 +87,7 @@ async function createUserAndProduct(userData, productData) {
 module.exports = {
     getAllUsers,
     getUserById,
+    getUserByEmail,
     createUser,
     updateUser,
     deleteUser,
