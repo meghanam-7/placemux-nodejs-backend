@@ -6,7 +6,7 @@ This project was created as part of the **PlaceMux (Altrodav Technologies) Phase
 
 The objective of this project is to build a clean, scalable, and industry-standard Node.js backend using **Express.js**, while following professional software development practices.
 
-Throughout this journey, the project evolves from a basic Express server into a complete backend application featuring modular architecture, RESTful APIs, PostgreSQL database integration, Prisma ORM, repository-based persistence, secure authentication, middleware, and production-ready backend practices.
+Throughout this journey, the project evolves from a basic Express server into a complete backend application featuring modular architecture, RESTful APIs, PostgreSQL database integration, Prisma ORM, repository-based persistence, secure authentication, request validation, middleware, and production-ready backend practices.
 
 ---
 
@@ -20,6 +20,7 @@ Throughout this journey, the project evolves from a basic Express server into a 
 - JSON Web Token (JWT)
 - Helmet
 - Express Rate Limit
+- Express Validator
 - dotenv
 - Nodemon
 - Git & GitHub
@@ -49,7 +50,8 @@ task1-node-server
 │   │
 │   ├── middleware
 │   │   ├── authMiddleware.js
-│   │   └── rateLimiter.js
+│   │   ├── rateLimiter.js
+│   │   └── validationMiddleware.js
 │   │
 │   ├── persistence
 │   │   ├── userRepository.js
@@ -65,6 +67,9 @@ task1-node-server
 │   ├── services
 │   │   ├── authService.js
 │   │   └── mockService.js
+│   │
+│   ├── validations
+│   │   └── authValidation.js
 │   │
 │   ├── utils
 │   └── server.js
@@ -182,9 +187,22 @@ task1-node-server
 
 ---
 
+## ✅ Day 7 – Data Schema Validation Middleware
+
+- Installed and configured Express Validator
+- Created reusable validation middleware
+- Implemented Signup request validation
+- Implemented Login request validation
+- Validated request body before reaching controllers
+- Standardized validation error responses
+- Prevented invalid data from entering business logic
+- Successfully tested valid and invalid request scenarios using Postman
+
+---
+
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 6 Completed**
+**Phase 1 Progress:** **Day 7 Completed**
 
 ### ✅ Completed Features
 
@@ -212,16 +230,18 @@ task1-node-server
 - Protected Routes
 - Helmet Security
 - Rate Limiting
+- Request Validation
+- Validation Middleware
+- Express Validator
 
 ### ⏳ Upcoming Features
 
-- Input Validation
 - Role-Based Authorization
 - Global Error Handling
 - Logging
 - API Documentation
 - Production Deployment
-- Testing
+- Unit & Integration Testing
 
 ---
 
@@ -268,6 +288,8 @@ Key learning areas include:
 - JWT Authentication
 - Password Hashing
 - Express Middleware
+- Request Validation
+- Express Validator
 - Backend Security Best Practices
 - API Design
 - Git & GitHub Workflow
