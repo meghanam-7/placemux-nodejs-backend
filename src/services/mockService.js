@@ -2,6 +2,7 @@ const userRepository = require("../persistence/userRepository");
 const productRepository = require("../persistence/productRepository");
 const orderRepository = require("../persistence/orderRepository");
 
+
 // Get all users
 async function getAllUsers() {
     return await userRepository.getAllUsers();
@@ -32,6 +33,18 @@ async function getOrderById(id) {
     return await orderRepository.getOrderById(id);
 }
 
+async function getAllUsersWithOrders() {
+    return await userRepository.getUsersWithOrders();
+}
+
+async function getAllOrdersWithDetails() {
+    return await userRepository.getOrdersWithDetails();
+}
+
+async function getAllProductsWithOrders() {
+    return await userRepository.getProductsWithOrders();
+}
+
 module.exports = {
     getAllUsers,
     getUserById,
@@ -39,4 +52,8 @@ module.exports = {
     getProductById,
     getAllOrders,
     getOrderById,
+
+    getAllUsersWithOrders,
+    getAllOrdersWithDetails,
+    getAllProductsWithOrders,
 };

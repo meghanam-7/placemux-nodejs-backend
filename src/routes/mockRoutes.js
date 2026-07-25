@@ -7,7 +7,11 @@ const {
 const {
     fetchUsers,
     fetchProducts,
-    fetchOrders
+    fetchOrders,
+
+    fetchUsersWithOrders,
+    fetchOrdersWithDetails,
+    fetchProductsWithOrders,
 } = require("../controllers/mockController");
 
 // Users Route
@@ -22,5 +26,15 @@ router.get("/api/products", fetchProducts);
 
 // Orders Route
 router.get("/api/orders", fetchOrders);
+
+
+// Users with Orders
+router.get("/api/users/orders", fetchUsersWithOrders);
+
+// Orders with User & Product
+router.get("/api/orders/details", fetchOrdersWithDetails);
+
+// Products with Orders
+router.get("/api/products/orders", fetchProductsWithOrders);
 
 module.exports = router;

@@ -84,6 +84,43 @@ async function createUserAndProduct(userData, productData) {
     });
 }
 
+// Get all users with their orders
+async function getUsersWithOrders() {
+    return await prisma.user.findMany({
+        include: {
+            orders: true,
+        },
+        orderBy: {
+            id: "asc",
+        },
+    });
+}
+
+// Get all orders with user and product details
+async function getOrdersWithDetails() {
+    return await prisma.order.findMany({
+        include: {
+            user: true,
+            product: true,
+        },
+        orderBy: {
+            id: "asc",
+        },
+    });
+}
+
+// Get all products with their orders
+async function getProductsWithOrders() {
+    return await prisma.product.findMany({
+        include: {
+            orders: true,
+        },
+        orderBy: {
+            id: "asc",
+        },
+    });
+}
+
 module.exports = {
     getAllUsers,
     getUserById,
@@ -92,4 +129,8 @@ module.exports = {
     updateUser,
     deleteUser,
     createUserAndProduct,
+
+    getUsersWithOrders,
+    getOrdersWithDetails,
+    getProductsWithOrders,
 };
