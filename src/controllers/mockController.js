@@ -8,21 +8,57 @@ const {
     getAllProductsWithOrders,
 } = require("../services/mockService");
 
+const cache = require("../utils/cache");
+
 // Get Users
 const fetchUsers = async (req, res) => {
-    try {
-        const users = await getAllUsers();
 
-        res.status(200).json({
+    console.time("Fetch Users API");
+
+    try {
+
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 5;
+
+        const cacheKey = `users_${page}_${limit}`;
+
+        // Check cache
+        const cachedUsers = cache.get(cacheKey);
+
+        if (cachedUsers) {
+
+            console.timeEnd("Fetch Users API");
+
+            return res.status(200).json({
+                success: true,
+                message: "Users fetched from cache",
+                data: cachedUsers,
+            });
+        }
+
+        // Fetch from database
+        const users = await getAllUsers(page, limit);
+
+        // Store in cache
+        cache.set(cacheKey, users);
+
+        console.timeEnd("Fetch Users API");
+
+        return res.status(200).json({
             success: true,
             message: "Users fetched successfully",
-            data: users
+            page,
+            limit,
+            data: users,
         });
+
     } catch (error) {
+        console.timeEnd("Fetch Users API");
+
         res.status(500).json({
             success: false,
             message: "Failed to fetch users",
-            error: error.message
+            error: error.message,
         });
     }
 };

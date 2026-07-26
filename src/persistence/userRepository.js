@@ -1,12 +1,27 @@
 const prisma = require("../config/prismaClient");
 
 // Get all users
-async function getAllUsers() {
+async function getAllUsers(page = 1, limit = 5) {
+
     return await prisma.user.findMany({
+
+        skip: (page - 1) * limit,
+
+        take: limit,
+
         orderBy: {
             id: "asc",
         },
+
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+        },
+
     });
+
 }
 
 // Get user by ID

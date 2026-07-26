@@ -4,8 +4,8 @@ const orderRepository = require("../persistence/orderRepository");
 
 
 // Get all users
-async function getAllUsers() {
-    return await userRepository.getAllUsers();
+async function getAllUsers(page, limit) {
+    return await userRepository.getAllUsers(page, limit);
 }
 
 // Get user by ID

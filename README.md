@@ -25,6 +25,9 @@ Throughout this journey, the project evolves from a basic Express server into a 
 - Nodemon
 - Git & GitHub
 - Postman
+- Express Validator
+- Node Cache
+- dotenv
 
 ---
 
@@ -35,7 +38,8 @@ task1-node-server
 │
 ├── prisma
 │   ├── migrations
-│   └── schema.prisma
+│   ├── schema.prisma
+│   └── seed.js
 │
 ├── src
 │   ├── config
@@ -72,6 +76,8 @@ task1-node-server
 │   │   └── authValidation.js
 │   │
 │   ├── utils
+│   |   └── cache.js
+|    |
 │   └── server.js
 │
 ├── .env
@@ -89,9 +95,12 @@ task1-node-server
 |---------|----------|-------------|
 | GET | `/health` | Check server health |
 | GET | `/hello` | Sample API response |
-| GET | `/api/users` | Returns user data from PostgreSQL (Protected Route) |
+| GET | `/api/users` | Returns paginated user data from PostgreSQL (Protected & Cached Route) |
 | GET | `/api/products` | Returns product data from PostgreSQL |
 | GET | `/api/orders` | Returns order data from PostgreSQL |
+| GET | `/api/users/orders` | Returns users with their orders |
+| GET | `/api/orders/details` | Returns orders with user and product details |
+| GET | `/api/products/orders` | Returns products with related orders |
 | POST | `/auth/signup` | Register a new user |
 | POST | `/auth/login` | Authenticate user and generate JWT |
 
@@ -200,9 +209,37 @@ task1-node-server
 
 ---
 
+## ✅ Day 8 – Data Relationships & Population
+
+- Enhanced relational database schema using Prisma
+- Applied database relationship constraints
+- Created reusable Prisma seed script
+- Seeded Users, Products and Orders with realistic sample data
+- Queried relational data using Prisma `include`
+- Implemented APIs to fetch Users with Orders
+- Implemented APIs to fetch Orders with User and Product details
+- Implemented APIs to fetch Products with Orders
+- Verified cascade and restrict delete behaviors
+- Successfully tested all relationship APIs using Postman
+
+---
+
+## ✅ Day 9 – API Optimization Backend
+
+- Implemented in-memory API response caching using Node Cache
+- Added cache utility for reusable caching logic
+- Optimized database queries using Prisma `select`
+- Implemented server-side pagination using `page` and `limit`
+- Improved API performance by reducing response payload
+- Added API response time measurement using `console.time()`
+- Implemented cache keys based on pagination parameters
+- Verified cache hits, pagination, and optimized response times using Postman
+
+---
+
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 7 Completed**
+**Phase 1 Progress:** **Day 9 Completed**
 
 ### ✅ Completed Features
 
@@ -233,15 +270,25 @@ task1-node-server
 - Request Validation
 - Validation Middleware
 - Express Validator
+- Data Seeding
+- Relational Data Fetching
+- Prisma Include Queries
+- Cascade & Restrict Relationships
+- API Response Caching
+- Node Cache
+- Pagination
+- Query Optimization
+- Performance Monitoring
 
 ### ⏳ Upcoming Features
 
 - Role-Based Authorization
 - Global Error Handling
 - Logging
-- API Documentation
+- API Documentation (Swagger)
 - Production Deployment
-- Unit & Integration Testing
+- Unit Testing
+- Integration Testing
 
 ---
 
@@ -283,6 +330,8 @@ Key learning areas include:
 - Prisma ORM
 - Database Design
 - Database Migrations
+- Database Seeding
+- Relational Database Modeling
 - Transactions
 - Authentication & Authorization
 - JWT Authentication
@@ -290,6 +339,10 @@ Key learning areas include:
 - Express Middleware
 - Request Validation
 - Express Validator
+- API Optimization
+- Response Caching
+- Pagination
+- Query Optimization
 - Backend Security Best Practices
 - API Design
 - Git & GitHub Workflow
