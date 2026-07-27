@@ -6,7 +6,7 @@ This project was created as part of the **PlaceMux (Altrodav Technologies) Phase
 
 The objective of this project is to build a clean, scalable, and industry-standard Node.js backend using **Express.js**, while following professional software development practices.
 
-Throughout this journey, the project evolves from a basic Express server into a complete backend application featuring modular architecture, RESTful APIs, PostgreSQL database integration, Prisma ORM, repository-based persistence, secure authentication, request validation, middleware, and production-ready backend practices.
+Throughout this journey, the project evolves from a basic Express server into a complete backend application featuring modular architecture, RESTful APIs, PostgreSQL database integration, Prisma ORM, repository-based persistence, secure authentication, request validation, API optimization, real-time communication with Socket.io, middleware, and production-ready backend practices.
 
 ---
 
@@ -14,6 +14,8 @@ Throughout this journey, the project evolves from a basic Express server into a 
 
 - Node.js
 - Express.js
+- Socket.io
+- Socket.io Client
 - PostgreSQL
 - Prisma ORM
 - bcrypt
@@ -21,13 +23,11 @@ Throughout this journey, the project evolves from a basic Express server into a 
 - Helmet
 - Express Rate Limit
 - Express Validator
+- Node Cache
 - dotenv
 - Nodemon
 - Git & GitHub
 - Postman
-- Express Validator
-- Node Cache
-- dotenv
 
 ---
 
@@ -77,9 +77,10 @@ task1-node-server
 │   │
 │   ├── utils
 │   |   └── cache.js
-|    |
+|   |
 │   └── server.js
 │
+├── client.js
 ├── .env
 ├── .gitignore
 ├── package.json
@@ -237,9 +238,25 @@ task1-node-server
 
 ---
 
+## ✅ Day 10 – Real-Time Communication with Socket.io
+
+- Installed and configured Socket.io with Express
+- Integrated HTTP server with Socket.io
+- Implemented client connection and disconnection events
+- Created welcome event for newly connected clients
+- Implemented custom real-time message events
+- Built bidirectional communication between client and server
+- Implemented Socket.io Rooms
+- Sent room-specific messages using room broadcasting
+- Handled automatic client reconnection events
+- Learned Redis Adapter concept for scaling Socket.io applications
+- Successfully tested all real-time events using Socket.io Client
+
+---
+
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 9 Completed**
+**Phase 1 Progress:** **Day 10 Completed**
 
 ### ✅ Completed Features
 
@@ -279,6 +296,12 @@ task1-node-server
 - Pagination
 - Query Optimization
 - Performance Monitoring
+- Socket.io
+- Real-Time Communication
+- WebSocket Events
+- Socket.io Rooms
+- Room Broadcasting
+- Automatic Reconnection Handling
 
 ### ⏳ Upcoming Features
 
@@ -343,6 +366,13 @@ Key learning areas include:
 - Response Caching
 - Pagination
 - Query Optimization
+- Socket.io
+- WebSocket Communication
+- Real-Time Event Handling
+- Socket.io Rooms
+- Room Broadcasting
+- Client Reconnection
+- Scalable Real-Time Architecture
 - Backend Security Best Practices
 - API Design
 - Git & GitHub Workflow

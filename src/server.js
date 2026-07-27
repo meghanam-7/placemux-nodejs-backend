@@ -2,9 +2,61 @@ const express = require("express");
 const dotenv = require("dotenv");
 const helmet = require("helmet");
 
+const http = require("http");
+const { Server } = require("socket.io");
+
 dotenv.config();
 
 const app = express();
+
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+    },
+});
+
+io.on("connection", (socket) => {
+    console.log(`Client Connected: ${socket.id}`);
+
+    // Welcome Event
+    socket.emit("welcome", {
+        message: "Welcome to PlaceMux Real-Time Server!",
+    });
+
+    // Send Message
+    socket.on("sendMessage", (data) => {
+        console.log("📩 Message Received:", data);
+
+        socket.emit("messageReceived", {
+            message: `Server received: ${data.message}`,
+        });
+    });
+
+    // Join Room
+    socket.on("joinRoom", (roomName) => {
+        socket.join(roomName);
+
+        console.log(`${socket.id} joined room: ${roomName}`);
+
+        socket.emit("roomJoined", {
+            message: `Joined room: ${roomName}`,
+        });
+    });
+
+    // Room Message
+    socket.on("roomMessage", ({ roomName, message }) => {
+        io.to(roomName).emit("receiveRoomMessage", {
+            room: roomName,
+            message,
+        });
+    });
+
+    // Disconnect
+    socket.on("disconnect", () => {
+        console.log(`Client Disconnected: ${socket.id}`);
+    });
+});
 
 const PORT = process.env.PORT;
 
@@ -25,6 +77,6 @@ app.use("/", sampleRoutes);
 app.use("/", mockRoutes);
 app.use("/", authRoutes);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
