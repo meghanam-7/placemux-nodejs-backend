@@ -101,6 +101,8 @@ task1-node-server
 
 ---
 
+---
+
 # 🌐 Available APIs
 
 | Method | Endpoint | Description |
