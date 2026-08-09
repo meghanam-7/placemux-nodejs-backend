@@ -9,6 +9,8 @@ dotenv.config();
 
 const app = express();
 
+require("./workers/emailWorker");
+
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
@@ -70,12 +72,14 @@ const healthRoutes = require("./routes/healthRoutes");
 const sampleRoutes = require("./routes/sampleRoutes");
 const mockRoutes = require("./routes/mockRoutes");
 const authRoutes = require("./routes/authRoutes");
+const jobRoutes = require("./routes/jobRoutes");
 
 // Use Routes
 app.use("/", healthRoutes);
 app.use("/", sampleRoutes);
 app.use("/", mockRoutes);
 app.use("/", authRoutes);
+app.use("/", jobRoutes);
 
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

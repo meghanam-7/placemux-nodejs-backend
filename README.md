@@ -28,6 +28,9 @@ Throughout this journey, the project evolves from a basic Express server into a 
 - Nodemon
 - Git & GitHub
 - Postman
+- BullMQ
+- ioredis
+- Redis / Memurai
 
 ---
 
@@ -43,10 +46,12 @@ task1-node-server
 │
 ├── src
 │   ├── config
-│   │   └── prismaClient.js
+│   │   ├── prismaClient.js
+│   │   └── redisConnection.js
 │   │
 │   ├── controllers
 │   │   ├── authController.js
+│   │   ├── jobController.js
 │   │   └── mockController.js
 │   │
 │   ├── data
@@ -62,11 +67,15 @@ task1-node-server
 │   │   ├── productRepository.js
 │   │   └── orderRepository.js
 │   │
+│   ├── queues
+│   │   └── emailQueue.js
+│   │
 │   ├── routes
 │   │   ├── authRoutes.js
 │   │   ├── healthRoutes.js
 │   │   ├── sampleRoutes.js
-│   │   └── mockRoutes.js
+│   │   ├── mockRoutes.js
+│   │   └── jobRoutes.js
 │   │
 │   ├── services
 │   │   ├── authService.js
@@ -76,8 +85,11 @@ task1-node-server
 │   │   └── authValidation.js
 │   │
 │   ├── utils
-│   |   └── cache.js
-|   |
+│   │   └── cache.js
+│   │
+│   ├── workers
+│   │   └── emailWorker.js
+│   │
 │   └── server.js
 │
 ├── client.js
@@ -86,14 +98,13 @@ task1-node-server
 ├── package.json
 ├── package-lock.json
 └── README.md
-```
 
 ---
 
 # 🌐 Available APIs
 
 | Method | Endpoint | Description |
-|---------|----------|-------------|
+|--------|----------|-------------|
 | GET | `/health` | Check server health |
 | GET | `/hello` | Sample API response |
 | GET | `/api/users` | Returns paginated user data from PostgreSQL (Protected & Cached Route) |
@@ -104,6 +115,7 @@ task1-node-server
 | GET | `/api/products/orders` | Returns products with related orders |
 | POST | `/auth/signup` | Register a new user |
 | POST | `/auth/login` | Authenticate user and generate JWT |
+| POST | `/api/jobs/email` | Adds an email-processing job to the BullMQ background queue |
 
 ---
 
@@ -254,9 +266,26 @@ task1-node-server
 
 ---
 
+## ✅ Day 11 – Background Job Processing with BullMQ & Redis
+
+- Installed and configured BullMQ and ioredis
+- Installed and configured Redis-compatible Memurai on Windows
+- Established Redis connection using ioredis
+- Created a BullMQ email job queue
+- Implemented background job processing using a BullMQ Worker
+- Integrated the job queue with an Express API
+- Configured automatic job retries with fixed backoff
+- Tested failed jobs and verified retry attempts
+- Implemented job progress tracking using `updateProgress()`
+- Added progress event monitoring for 25%, 50% and 100% completion
+- Configured completed and failed job retention behavior
+- Successfully tested the complete API → Queue → Redis → Worker flow
+
+---
+
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 10 Completed**
+**Phase 1 Progress:** **Day 11 Completed**
 
 ### ✅ Completed Features
 
@@ -302,6 +331,16 @@ task1-node-server
 - Socket.io Rooms
 - Room Broadcasting
 - Automatic Reconnection Handling
+- BullMQ
+- ioredis
+- Redis / Memurai
+- Background Job Processing
+- Job Queues
+- BullMQ Workers
+- Automatic Job Retries
+- Retry Backoff
+- Job Progress Tracking
+- Queue-Based Architecture
 
 ### ⏳ Upcoming Features
 
@@ -373,6 +412,15 @@ Key learning areas include:
 - Room Broadcasting
 - Client Reconnection
 - Scalable Real-Time Architecture
+- BullMQ
+- Redis / Memurai
+- ioredis
+- Background Job Processing
+- Job Queues & Workers
+- Retry Mechanisms
+- Job Progress Tracking
+- Asynchronous Task Processing
+- Queue-Based Architecture
 - Backend Security Best Practices
 - API Design
 - Git & GitHub Workflow
