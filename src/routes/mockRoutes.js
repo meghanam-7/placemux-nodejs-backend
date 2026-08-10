@@ -8,10 +8,12 @@ const {
     fetchUsers,
     fetchProducts,
     fetchOrders,
-
     fetchUsersWithOrders,
     fetchOrdersWithDetails,
     fetchProductsWithOrders,
+    createProductHandler,
+    updateProductHandler,
+    deleteProductHandler,
 } = require("../controllers/mockController");
 
 // Users Route
@@ -23,6 +25,16 @@ router.get(
 
 // Products Route
 router.get("/api/products", fetchProducts);
+
+// Create Product
+router.post("/api/products", createProductHandler);
+
+// Update Product
+router.put("/api/products/:id", updateProductHandler);
+
+// Delete Product
+router.delete("/api/products/:id", deleteProductHandler);
+
 
 // Orders Route
 router.get("/api/orders", fetchOrders);

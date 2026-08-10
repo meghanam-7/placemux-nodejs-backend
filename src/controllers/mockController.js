@@ -2,10 +2,12 @@ const {
     getAllUsers,
     getAllProducts,
     getAllOrders,
-
     getAllUsersWithOrders,
     getAllOrdersWithDetails,
     getAllProductsWithOrders,
+    createProduct,
+    updateProduct,
+    deleteProduct,
 } = require("../services/mockService");
 
 const cache = require("../utils/cache");
@@ -27,6 +29,10 @@ const {
     releaseLock,
     isLocked,
 } = require("../utils/cacheLock");
+
+const {
+    invalidateProductsCache,
+} = require("../utils/cacheInvalidation");
 
 // Get Users
 const fetchUsers = async (req, res) => {
@@ -178,6 +184,87 @@ const fetchProducts = async (req, res) => {
     }
 };
 
+// Create Product
+const createProductHandler = async (req, res) => {
+    try {
+        const { name, price, stock } = req.body;
+
+        const product = await createProduct({
+            name,
+            price: Number(price),
+            stock: Number(stock),
+        });
+
+        // Invalidate product cache after successful database write
+        await invalidateProductsCache();
+
+        res.status(201).json({
+            success: true,
+            message: "Product created successfully",
+            data: product,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to create product",
+            error: error.message,
+        });
+    }
+};
+
+// Update Product
+const updateProductHandler = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, price, stock } = req.body;
+
+        const product = await updateProduct(id, {
+            name,
+            price: Number(price),
+            stock: Number(stock),
+        });
+
+        // Invalidate product cache after successful database update
+        await invalidateProductsCache();
+
+        res.status(200).json({
+            success: true,
+            message: "Product updated successfully",
+            data: product,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to update product",
+            error: error.message,
+        });
+    }
+};
+
+// Delete Product
+const deleteProductHandler = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const product = await deleteProduct(id);
+
+        // Invalidate product cache after successful database deletion
+        await invalidateProductsCache();
+
+        res.status(200).json({
+            success: true,
+            message: "Product deleted successfully",
+            data: product,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Failed to delete product",
+            error: error.message,
+        });
+    }
+};
+
 // Get Orders
 const fetchOrders = async (req, res) => {
     try {
@@ -262,4 +349,8 @@ module.exports = {
     fetchUsersWithOrders,
     fetchOrdersWithDetails,
     fetchProductsWithOrders,
+
+    createProductHandler,
+    updateProductHandler,
+    deleteProductHandler,
 };

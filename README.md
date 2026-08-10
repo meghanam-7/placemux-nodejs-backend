@@ -51,6 +51,7 @@ task1-node-server
 │   │
 │   ├── controllers
 │   │   ├── authController.js
+│   │   ├── cacheMetricsController.js
 │   │   ├── jobController.js
 │   │   └── mockController.js
 │   │
@@ -72,6 +73,7 @@ task1-node-server
 │   │
 │   ├── routes
 │   │   ├── authRoutes.js
+│   │   ├── cacheMetricsRoutes.js
 │   │   ├── healthRoutes.js
 │   │   ├── sampleRoutes.js
 │   │   ├── mockRoutes.js
@@ -86,6 +88,9 @@ task1-node-server
 │   │
 │   ├── utils
 │   │   ├── cache.js
+│   │   ├── cacheInvalidation.js
+│   │   ├── cacheLock.js
+│   │   ├── cacheMetrics.js
 │   │   └── redisCache.js
 │   │
 │   ├── workers
@@ -94,6 +99,8 @@ task1-node-server
 │   └── server.js
 │
 ├── client.js
+├── testCacheStampede.js
+├── testRedisCache.js
 ├── .env
 ├── .gitignore
 ├── package.json
@@ -101,20 +108,25 @@ task1-node-server
 └── README.md
 
 ```
+
 ---
 
 # 🌐 Available APIs
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
+| ------ | -------- | ----------- |
 | GET | `/health` | Check server health |
 | GET | `/hello` | Sample API response |
 | GET | `/api/users` | Returns paginated user data from PostgreSQL (Protected & Cached Route) |
-| GET | `/api/products` | Returns product data from PostgreSQL |
+| GET | `/api/products` | Returns product data from PostgreSQL / Redis cache |
 | GET | `/api/orders` | Returns order data from PostgreSQL |
 | GET | `/api/users/orders` | Returns users with their orders |
 | GET | `/api/orders/details` | Returns orders with user and product details |
 | GET | `/api/products/orders` | Returns products with related orders |
+| POST | `/api/products` | Creates a new product and invalidates the products cache |
+| PUT | `/api/products/:id` | Updates an existing product and invalidates the products cache |
+| DELETE | `/api/products/:id` | Deletes an existing product and invalidates the products cache |
+| GET | `/api/cache/metrics` | Returns cache hit, miss, request, and latency metrics |
 | POST | `/auth/signup` | Register a new user |
 | POST | `/auth/login` | Authenticate user and generate JWT |
 | POST | `/api/jobs/email` | Adds an email-processing job to the BullMQ background queue |
@@ -300,6 +312,7 @@ task1-node-server
 - Documented cache freshness and data consistency considerations
 - Successfully verified Redis cache performance using Postman and terminal tests
 
+
 ### 🗄️ Cache Freshness Strategy
 
 The Products endpoint uses a cache-aside strategy with a 60-second TTL.
@@ -341,10 +354,55 @@ This prevents multiple concurrent requests from independently querying the datab
 
 ---
 
+## ✅ Day 13 – Cache Invalidation Routing Backend
+
+- Designed and implemented a reliable Redis cache invalidation strategy for product data
+- Identified database write operations that can make cached product data stale
+- Mapped product create, update and delete operations to the affected `products` cache key
+- Created a reusable cache invalidation utility for centralized cache eviction
+- Integrated cache invalidation into product create operations
+- Integrated cache invalidation into product update operations
+- Integrated cache invalidation into product delete operations
+- Ensured the products cache is removed immediately after successful database write operations
+- Prevented stale product data from being served after create, update and delete operations
+- Used precise cache-key invalidation to avoid unnecessary eviction of unrelated cache entries
+- Verified cache invalidation using Redis/Memurai CLI
+- Verified that the `products` Redis key is removed after product creation
+- Verified that the `products` Redis key is removed after product updates
+- Verified that the `products` Redis key is removed after product deletion
+- Verified that a subsequent product request retrieves the latest database state and rebuilds the cache
+- Verified that subsequent requests are served from the refreshed Redis cache
+- Configured bounded cache staleness using a 60-second Redis TTL
+- Verified Redis TTL countdown using Memurai CLI
+- Confirmed TTL reduction from 51 seconds to 34 seconds during validation
+- Documented cache invalidation behavior and staleness boundaries
+- Successfully tested end-to-end database write → cache invalidation → fresh data → cache rebuild flow
+
+### 🔄 Cache Invalidation Strategy
+
+The application uses a **cache-aside strategy** with Redis for hot, read-heavy product data.
+
+### Cache Key Mapping
+
+| Database Operation | Affected Cache Key | Invalidation Strategy |
+| ------------------ | ------------------ | --------------------- |
+| Create Product | `products` | Delete entire product-list cache |
+| Update Product | `products` | Delete entire product-list cache |
+| Delete Product | `products` | Delete entire product-list cache |
+
+### Why `products` Is Invalidated
+
+The `/api/products` endpoint caches the complete product collection under:
+
+```text
+products
+
+---
+
 
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 12 Completed**
+**Phase 1 Progress:** **Day 13 Completed**
 
 ### ✅ Completed Features
 
@@ -410,6 +468,13 @@ This prevents multiple concurrent requests from independently querying the datab
 - Cache Stampede Protection
 - Redis Distributed Lock
 - Cache Freshness Strategy
+- Cache Invalidation
+- Write-Triggered Cache Eviction
+- Product Cache Invalidation
+- Cache Key Mapping
+- Cache Data Consistency
+- Bounded Cache Staleness
+
 
 ### ⏳ Upcoming Features
 
@@ -479,7 +544,11 @@ Key learning areas include:
 - Cache Performance Monitoring
 - Cache Stampede Protection
 - Distributed Cache Locking
+- Cache Invalidation
+- Write-Triggered cache invalidation
+- Cache Key Management
 - Cache Freshness & Data Consistency
+- Bounded Cache Staleness
 - Pagination
 - Query Optimization
 - Socket.io

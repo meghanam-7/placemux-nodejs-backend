@@ -23,6 +23,21 @@ async function getProductById(id) {
     return await productRepository.getProductById(id);
 }
 
+// Create product
+async function createProduct(productData) {
+    return await productRepository.createProduct(productData);
+}
+
+// Update product
+async function updateProduct(id, productData) {
+    return await productRepository.updateProduct(id, productData);
+}
+
+// Delete product
+async function deleteProduct(id) {
+    return await productRepository.deleteProduct(id);
+}
+
 // Get all orders
 async function getAllOrders() {
     return await orderRepository.getAllOrders();
@@ -50,9 +65,11 @@ module.exports = {
     getUserById,
     getAllProducts,
     getProductById,
+    createProduct,
+    updateProduct,
+    deleteProduct,
     getAllOrders,
     getOrderById,
-
     getAllUsersWithOrders,
     getAllOrdersWithDetails,
     getAllProductsWithOrders,
