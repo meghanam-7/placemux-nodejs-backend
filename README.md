@@ -85,7 +85,8 @@ task1-node-server
 │   │   └── authValidation.js
 │   │
 │   ├── utils
-│   │   └── cache.js
+│   │   ├── cache.js
+│   │   └── redisCache.js
 │   │
 │   ├── workers
 │   │   └── emailWorker.js
@@ -284,9 +285,66 @@ task1-node-server
 
 ---
 
+## ✅ Day 12 – Redis-Based Memory Caching
+
+- Implemented Redis-based caching for the Products API using ioredis
+- Implemented the cache-aside caching strategy
+- Added Redis GET, SET and DELETE utility functions
+- Configured a 60-second TTL for product data
+- Added cache hit and cache miss tracking
+- Implemented cache latency and database latency measurement
+- Calculated cache hit ratio and latency improvement
+- Implemented Redis-based cache stampede protection using a distributed lock
+- Verified concurrent requests do not trigger multiple database queries
+- Tested cache expiration and TTL behavior using Memurai CLI
+- Documented cache freshness and data consistency considerations
+- Successfully verified Redis cache performance using Postman and terminal tests
+
+### 🗄️ Cache Freshness Strategy
+
+The Products endpoint uses a cache-aside strategy with a 60-second TTL.
+
+- Product data is cached in Redis for 60 seconds.
+- Redis automatically expires the cached data after the TTL.
+- This provides a balance between database load reduction and data freshness.
+- The current Products API is read-only and does not expose product create, update, or delete operations, so explicit cache invalidation is not currently required.
+- If product mutation APIs are introduced in the future, the `products` cache should be invalidated after a successful database modification using `deleteCache("products")`.
+- Cache stampede protection ensures that when the cache expires, concurrent requests do not trigger multiple database queries.
+- Cached product data can therefore be stale for up to approximately 60 seconds.
+
+### 📊 Cache Performance Results
+
+| Metric | Result |
+| ------ | ------ |
+| Cache Hits | 2 |
+| Cache Misses | 1 |
+| Total Requests | 3 |
+| Cache Hit Ratio | 66.67% |
+| Average Cache Latency | 1.36 ms |
+| Average Database Latency | 62.78 ms |
+| Latency Improvement | 97.83% |
+| Product Cache TTL | 60 seconds |
+
+### 🛡️ Cache Stampede Protection
+
+A Redis-based distributed lock was implemented for the `products` cache key.
+
+When multiple requests arrive while the cache is empty or expired:
+
+1. The first request acquires the Redis lock.
+2. It fetches the product data from PostgreSQL.
+3. The data is stored in Redis.
+4. The remaining requests wait for the cache to be populated.
+5. Subsequent requests read the newly populated data from Redis.
+
+This prevents multiple concurrent requests from independently querying the database for the same popular cache key.
+
+---
+
+
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 11 Completed**
+**Phase 1 Progress:** **Day 12 Completed**
 
 ### ✅ Completed Features
 
@@ -342,6 +400,16 @@ task1-node-server
 - Retry Backoff
 - Job Progress Tracking
 - Queue-Based Architecture
+- Redis-Based API Caching
+- Cache-Aside Strategy
+- Redis TTL
+- Cache Hit/Miss Metrics
+- Cache Latency Monitoring
+- Database Latency Monitoring
+- Cache Hit Ratio
+- Cache Stampede Protection
+- Redis Distributed Lock
+- Cache Freshness Strategy
 
 ### ⏳ Upcoming Features
 
@@ -404,6 +472,14 @@ Key learning areas include:
 - Express Validator
 - API Optimization
 - Response Caching
+- Redis-Based Caching
+- Cache-Aside Strategy
+- Redis TTL
+- Cache Hit & Miss Metrics
+- Cache Performance Monitoring
+- Cache Stampede Protection
+- Distributed Cache Locking
+- Cache Freshness & Data Consistency
 - Pagination
 - Query Optimization
 - Socket.io

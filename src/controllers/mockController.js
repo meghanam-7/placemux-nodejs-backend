@@ -10,6 +10,24 @@ const {
 
 const cache = require("../utils/cache");
 
+const {
+    getCache,
+    setCache,
+} = require("../utils/redisCache");
+
+const {
+    recordCacheHit,
+    recordCacheMiss,
+} = require("../utils/cacheMetrics");
+
+const CACHE_TTL = require("../config/cacheConfig");
+
+const {
+    acquireLock,
+    releaseLock,
+    isLocked,
+} = require("../utils/cacheLock");
+
 // Get Users
 const fetchUsers = async (req, res) => {
 
@@ -65,19 +83,97 @@ const fetchUsers = async (req, res) => {
 
 // Get Products
 const fetchProducts = async (req, res) => {
-    try {
-        const products = await getAllProducts();
+    const startTime = process.hrtime.bigint();
 
-        res.status(200).json({
-            success: true,
-            message: "Products fetched successfully",
-            data: products
-        });
+    const cacheKey = "products";
+
+    try {
+        // Check Redis cache
+        const cachedProducts = await getCache(cacheKey);
+
+        if (cachedProducts) {
+            const endTime = process.hrtime.bigint();
+
+            const latency =
+                Number(endTime - startTime) / 1_000_000;
+
+            recordCacheHit(latency);
+
+            return res.status(200).json({
+                success: true,
+                message: "Products fetched from Redis cache",
+                source: "cache",
+                data: cachedProducts,
+            });
+        }
+
+        // Cache miss
+        // Check whether another request is already loading the data
+        if (!acquireLock(cacheKey)) {
+            console.log(`⏳ Cache lock active for ${cacheKey}, waiting...`);
+
+            // Wait for the request holding the lock to populate Redis
+            while (isLocked(cacheKey)) {
+                await new Promise((resolve) =>
+                    setTimeout(resolve, 50)
+                );
+            }
+
+            // Try Redis again after waiting
+            const cachedProductsAfterWait = await getCache(cacheKey);
+
+            if (cachedProductsAfterWait) {
+                const endTime = process.hrtime.bigint();
+
+                const latency =
+                    Number(endTime - startTime) / 1_000_000;
+
+                recordCacheHit(latency);
+
+                return res.status(200).json({
+                    success: true,
+                    message: "Products fetched from Redis cache after waiting",
+                    source: "cache",
+                    data: cachedProductsAfterWait,
+                });
+            }
+        }
+
+        try {
+            // Fetch from database
+            const products = await getAllProducts();
+
+            // Store in Redis
+            await setCache(
+                cacheKey,
+                products,
+                CACHE_TTL.PRODUCTS
+            );
+
+            const endTime = process.hrtime.bigint();
+
+            const latency =
+                Number(endTime - startTime) / 1_000_000;
+
+            recordCacheMiss(latency);
+
+            return res.status(200).json({
+                success: true,
+                message: "Products fetched successfully",
+                source: "database",
+                data: products,
+            });
+
+        } finally {
+            // Always release the lock
+            releaseLock(cacheKey);
+        }
+
     } catch (error) {
         res.status(500).json({
             success: false,
             message: "Failed to fetch products",
-            error: error.message
+            error: error.message,
         });
     }
 };

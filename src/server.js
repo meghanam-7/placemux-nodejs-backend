@@ -73,6 +73,7 @@ const sampleRoutes = require("./routes/sampleRoutes");
 const mockRoutes = require("./routes/mockRoutes");
 const authRoutes = require("./routes/authRoutes");
 const jobRoutes = require("./routes/jobRoutes");
+const cacheMetricsRoutes = require("./routes/cacheMetricsRoutes");
 
 // Use Routes
 app.use("/", healthRoutes);
@@ -80,6 +81,7 @@ app.use("/", sampleRoutes);
 app.use("/", mockRoutes);
 app.use("/", authRoutes);
 app.use("/", jobRoutes);
+app.use("/", cacheMetricsRoutes);
 
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
