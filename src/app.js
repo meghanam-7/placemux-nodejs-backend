@@ -2,6 +2,8 @@ const express = require("express");
 const helmet = require("helmet");
 const compression = require("compression");
 const timeout = require("connect-timeout");
+const cors = require("cors");
+const { apiRateLimiter } = require("./middleware/rateLimiter");
 
 const app = express();
 app.use(timeout("10s"));
@@ -11,7 +13,17 @@ app.use(timeout("10s"));
 // Middleware
 app.use(express.json({ limit: "1mb" }));
 app.use(helmet());
+
+app.use(
+    cors({
+        origin: ["http://localhost:3000"],
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+    })
+);
+
 app.use(compression());
+app.use("/api", apiRateLimiter);
 
 
 // Import Routes

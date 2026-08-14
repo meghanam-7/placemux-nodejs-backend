@@ -34,6 +34,11 @@ Throughout this journey, the project evolves from a basic Express server into a 
 - Node.js Cluster
 - Autocannon
 - Connect Timeout
+- Helmet
+- Express Rate Limit
+- rate-limit-redis
+- CORS
+- Express Validator
 
 ---
 
@@ -324,10 +329,10 @@ The Products endpoint uses a cache-aside strategy with a 60-second TTL.
 - Product data is cached in Redis for 60 seconds.
 - Redis automatically expires the cached data after the TTL.
 - This provides a balance between database load reduction and data freshness.
-- The current Products API is read-only and does not expose product create, update, or delete operations, so explicit cache invalidation is not currently required.
-- If product mutation APIs are introduced in the future, the `products` cache should be invalidated after a successful database modification using `deleteCache("products")`.
+- Product create, update, and delete operations invalidate the `products` cache after successful database modifications.
+- Cache invalidation ensures that subsequent product requests retrieve the latest database state and rebuild the Redis cache.
 - Cache stampede protection ensures that when the cache expires, concurrent requests do not trigger multiple database queries.
-- Cached product data can therefore be stale for up to approximately 60 seconds.
+- The `products` cache uses a 60-second TTL as an additional bounded-staleness mechanism.
 
 ### 📊 Cache Performance Results
 
@@ -400,7 +405,7 @@ The `/api/products` endpoint caches the complete product collection under:
 
 ```text
 products
-
+```
 
 ---
 
@@ -476,9 +481,61 @@ This indicates that the current local environment reaches a practical throughput
 
 ---
 
+## ✅ Day 15 – Distributed Rate Limiting & CORS Security
+
+- Enhanced API rate limiting for clustered Node.js workers
+- Installed and configured `rate-limit-redis`
+- Integrated `express-rate-limit` with Redis
+- Configured Redis as the shared rate-limit store
+- Applied the shared Redis-backed rate limiter to `/api` routes
+- Configured a general API limit of 100 requests per minute
+- Configured a stricter authentication limit of 10 requests per 15 minutes
+- Applied authentication rate limiting specifically to login requests
+- Verified that rate-limit state is shared across multiple Node.js cluster workers
+- Verified that requests 1–100 are accepted under the general API limit
+- Verified that requests exceeding the 100-request limit return `429 Too Many Requests`
+- Verified that authentication requests 1–10 are processed normally
+- Verified that authentication requests exceeding the configured limit return `429 Too Many Requests`
+- Verified `Retry-After` and standard rate-limit headers
+- Added CORS middleware using the `cors` package
+- Configured CORS to allow requests from the approved frontend origin
+- Verified successful CORS responses using the `Access-Control-Allow-Origin` header
+- Verified that unapproved origins do not receive the `Access-Control-Allow-Origin` header
+- Combined Redis-backed rate limiting with Node.js Cluster for shared request protection
+- Successfully tested distributed rate limiting and CORS behavior using terminal and `curl`
+
+## 📊 Day 15 — Distributed Rate Limiting & CORS Results
+
+### Redis-Backed API Rate Limiting
+
+The application uses Redis as the shared storage backend for `express-rate-limit`.
+
+This is important because the application runs using multiple Node.js cluster workers.
+
+Instead of each worker maintaining an independent in-memory request counter, all workers use the same Redis-backed rate-limit store.
+
+### General API Rate Limit
+
+| Configuration | Value |
+|------|------|
+| Window | 1 minute |
+| Maximum Requests | 100 |
+| Storage | Redis |
+| Exceeded Response | `429 Too Many Requests` |
+
+The `/api` routes are protected by the general API rate limiter.
+
+Testing confirmed:
+
+```text
+Requests 1–100  → 200 OK
+Requests 101+   → 429 Too Many Requests
+```
+---
+
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 14 Completed**
+**Phase 1 Progress:** **Day 15 Completed**
 
 ### ✅ Completed Features
 
@@ -560,6 +617,15 @@ This indicates that the current local environment reaches a practical throughput
 - Graceful Degradation
 - Performance Benchmarking
 - Concurrent Traffic Testing
+- Redis-Backed Rate Limiting
+- Distributed Rate Limiting
+- Shared Rate-Limit State Across Cluster Workers
+- API Request Rate Limiting
+- Authentication Rate Limiting
+- Rate-Limit Standard Headers
+- Retry-After Handling
+- CORS Configuration
+- Cross-Origin Request Protection
 
 ### ⏳ Upcoming Features
 
@@ -652,6 +718,12 @@ Key learning areas include:
 - Job Progress Tracking
 - Asynchronous Task Processing
 - Queue-Based Architecture
+- Distributed Rate Limiting
+- Redis-Backed Rate Limiting
+- Shared Rate-Limit State
+- Rate Limiting in Clustered Applications
+- CORS
+- Cross-Origin Request Security
 - Backend Security Best Practices
 - API Design
 - Git & GitHub Workflow

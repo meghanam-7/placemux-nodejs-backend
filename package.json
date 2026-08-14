@@ -19,6 +19,7 @@
     "bullmq": "^6.0.9",
     "compression": "^1.8.1",
     "connect-timeout": "^1.9.1",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.6.0",
@@ -27,6 +28,7 @@
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "node-cache": "^5.1.2",
+    "rate-limit-redis": "^6.0.1",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3"
   },

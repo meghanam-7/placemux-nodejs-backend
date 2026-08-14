@@ -1,14 +1,44 @@
 const rateLimit = require("express-rate-limit");
+const { RedisStore } = require("rate-limit-redis");
+const redisConnection = require("../config/redisConnection");
 
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 5,
+// General API rate limiter
+const apiRateLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 100,
+
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+
+    store: new RedisStore({
+        sendCommand: (...args) => redisConnection.call(...args),
+    }),
+
     message: {
         success: false,
-        message: "Too many login attempts. Please try again after 15 minutes.",
+        message: "Too many requests. Please try again later.",
+    },
+});
+
+// Stricter limiter for authentication endpoints
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+
+    store: new RedisStore({
+        sendCommand: (...args) => redisConnection.call(...args),
+    }),
+
+    message: {
+        success: false,
+        message: "Too many authentication attempts. Please try again later.",
     },
 });
 
 module.exports = {
+    apiRateLimiter,
     authLimiter,
 };
