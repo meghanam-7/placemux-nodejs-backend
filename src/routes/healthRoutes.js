@@ -9,4 +9,13 @@ router.get("/health", (req, res) => {
     });
 });
 
+// router.get("/test/slow", (req, res) => {
+//     setTimeout(() => {
+//         res.json({
+//             success: true,
+//             message: "Slow request completed",
+//         });
+//     }, 15000);
+// });
+
 module.exports = router;

@@ -31,6 +31,9 @@ Throughout this journey, the project evolves from a basic Express server into a 
 - BullMQ
 - ioredis
 - Redis / Memurai
+- Node.js Cluster
+- Autocannon
+- Connect Timeout
 
 ---
 
@@ -96,6 +99,7 @@ task1-node-server
 │   ├── workers
 │   │   └── emailWorker.js
 │   │
+│   ├── app.js
 │   └── server.js
 │
 ├── client.js
@@ -397,12 +401,84 @@ The `/api/products` endpoint caches the complete product collection under:
 ```text
 products
 
+
 ---
 
+## ✅ Day 14 – High-Throughput Performance & Request Mapping
+
+- Analyzed API performance under increasing concurrent traffic
+- Installed and configured Autocannon for HTTP load testing
+- Established a baseline performance benchmark for the Products API
+- Load-tested the `/api/products` endpoint with 10 concurrent connections
+- Load-tested the API with 50 and 100 concurrent connections
+- Performed stress testing with 200 concurrent connections
+- Measured requests per second, average latency, p99 latency and response throughput
+- Monitored Node.js process CPU and memory usage during high-concurrency tests
+- Identified practical throughput limits under increasing concurrent traffic
+- Implemented Node.js Cluster for horizontal scaling
+- Configured a primary process with multiple worker processes
+- Successfully started 4 Node.js worker processes
+- Distributed incoming requests across multiple worker processes
+- Verified multi-worker request handling on port 3000
+- Implemented request timeout handling using Connect Timeout
+- Configured a 10-second request timeout
+- Implemented graceful degradation for slow requests
+- Returned `503 Service Unavailable` for requests exceeding the configured timeout
+- Preserved successful responses for normal API requests
+- Verified normal API requests continue returning `200 OK` during timeout testing
+- Compared single-process and multi-worker performance under concurrent load
+- Performed resource monitoring across clustered worker processes
+- Documented throughput, latency and resource utilization observations
+- Successfully validated high-concurrency request handling, horizontal scaling and graceful degradation
+
+## 📊 Day 14 — High-Throughput Performance Results
+
+### Load Testing
+
+Load testing was performed using Autocannon against:
+
+`GET /api/products`
+
+| Test | Connections | Duration | Avg Req/Sec | Avg Latency | p99 Latency | Result |
+|------|-------------|----------|-------------|-------------|-------------|--------|
+| Baseline | 10 | 10s | 3,528 | 2.35 ms | 5 ms | ✅ Stable |
+| High Concurrency | 100 | 10s | 1,855.1 | 53.59 ms | 144 ms | ✅ Stable |
+| Stress Test | 200 | 10s | 1,819.5 | 110.19 ms | 303 ms | ✅ Stable |
+
+### Resource Monitoring
+
+The application was configured with a 4-worker Node.js cluster.
+
+- 4 worker processes were successfully started.
+- Idle worker memory usage was approximately 58–65 MB per worker.
+- During a 100-connection load test, one worker reached 170% CPU usage and approximately 124 MB working memory in the captured snapshot.
+- No request errors were reported during the completed load tests.
+
+### Graceful Degradation
+
+A 10-second request timeout was implemented to prevent excessively slow requests from occupying server resources indefinitely.
+
+Slow requests are terminated with:
+
+`503 Service Unavailable`
+
+Normal requests continue to return:
+
+`200 OK`
+
+### Capacity Observation
+
+The application successfully handled up to 200 concurrent connections during local stress testing.
+
+As concurrency increased from 100 to 200 connections, average latency increased from approximately 54 ms to 110 ms, while throughput remained around 1.8k requests/sec.
+
+This indicates that the current local environment reaches a practical throughput limit under higher concurrency, while graceful degradation and request protection prevent uncontrolled request buildup.
+
+---
 
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 13 Completed**
+**Phase 1 Progress:** **Day 14 Completed**
 
 ### ✅ Completed Features
 
@@ -474,7 +550,16 @@ products
 - Cache Key Mapping
 - Cache Data Consistency
 - Bounded Cache Staleness
-
+- Node.js Cluster
+- Horizontal Scaling
+- Multi-Worker Request Handling
+- High-Concurrency Load Testing
+- Autocannon Load Testing
+- Resource Monitoring
+- Request Timeout Handling
+- Graceful Degradation
+- Performance Benchmarking
+- Concurrent Traffic Testing
 
 ### ⏳ Upcoming Features
 
