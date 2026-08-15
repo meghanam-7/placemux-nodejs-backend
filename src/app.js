@@ -30,6 +30,7 @@ app.use("/api", apiRateLimiter);
 const healthRoutes = require("./routes/healthRoutes");
 const sampleRoutes = require("./routes/sampleRoutes");
 const mockRoutes = require("./routes/mockRoutes");
+const workerRoutes = require("./routes/workerRoutes");
 const authRoutes = require("./routes/authRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const cacheMetricsRoutes = require("./routes/cacheMetricsRoutes");
@@ -38,9 +39,11 @@ const cacheMetricsRoutes = require("./routes/cacheMetricsRoutes");
 app.use("/", healthRoutes);
 app.use("/", sampleRoutes);
 app.use("/", mockRoutes);
+app.use("/", workerRoutes);
 app.use("/", authRoutes);
 app.use("/", jobRoutes);
 app.use("/", cacheMetricsRoutes);
+
 
 // app.use((req, res, next) => {
 //     if (!req.timedout) {

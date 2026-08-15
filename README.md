@@ -10,9 +10,11 @@ Throughout this journey, the project evolves from a basic Express server into a 
 
 ---
 
-## 🛠 Tech Stack
+# 🛠 Tech Stack
 
 - Node.js
+- Node.js Worker Threads
+- Node.js Cluster
 - Express.js
 - Socket.io
 - Socket.io Client
@@ -24,6 +26,7 @@ Throughout this journey, the project evolves from a basic Express server into a 
 - Express Rate Limit
 - rate-limit-redis
 - Express Validator
+- CORS
 - Node Cache
 - dotenv
 - Nodemon
@@ -32,10 +35,8 @@ Throughout this journey, the project evolves from a basic Express server into a 
 - BullMQ
 - ioredis
 - Redis / Memurai
-- Node.js Cluster
 - Autocannon
 - Connect Timeout
-- CORS
 
 ---
 
@@ -58,7 +59,8 @@ task1-node-server
 │   │   ├── authController.js
 │   │   ├── cacheMetricsController.js
 │   │   ├── jobController.js
-│   │   └── mockController.js
+│   │   ├── mockController.js
+│   │   └── workerController.js
 │   │
 │   ├── data
 │   │   └── mockData.js
@@ -82,7 +84,8 @@ task1-node-server
 │   │   ├── healthRoutes.js
 │   │   ├── sampleRoutes.js
 │   │   ├── mockRoutes.js
-│   │   └── jobRoutes.js
+│   │   ├── jobRoutes.js
+│   │   └── workerRoutes.js
 │   │
 │   ├── services
 │   │   ├── authService.js
@@ -96,10 +99,12 @@ task1-node-server
 │   │   ├── cacheInvalidation.js
 │   │   ├── cacheLock.js
 │   │   ├── cacheMetrics.js
-│   │   └── redisCache.js
+│   │   ├── redisCache.js
+│   │   └── workerPool.js
 │   │
 │   ├── workers
-│   │   └── emailWorker.js
+│   │   ├── emailWorker.js
+│   │   └── cpuWorker.js
 │   │
 │   ├── app.js
 │   └── server.js
@@ -136,6 +141,8 @@ task1-node-server
 | POST | `/auth/signup` | Register a new user |
 | POST | `/auth/login` | Authenticate user and generate JWT |
 | POST | `/api/jobs/email` | Adds an email-processing job to the BullMQ background queue |
+| GET | `/api/worker/cpu?number=35` | Executes a CPU-intensive Fibonacci calculation using a Worker Thread pool |
+| GET | `/api/worker/health` | Verifies that the main Node.js event loop remains responsive during CPU-intensive work |
 
 ---
 
@@ -669,9 +676,38 @@ The backend demonstrated strong throughput under moderate concurrency and remain
 
 ---
 
+## ✅ Day 17 – Worker Threads Backend
+
+- Identified CPU-intensive Fibonacci computation as a CPU-bound operation
+- Implemented CPU-intensive computation using Node.js Worker Threads
+- Created a dedicated `cpuWorker.js` worker for heavy computation
+- Implemented message passing between the main process and worker threads using `parentPort`
+- Created a reusable `WorkerPool` class to manage worker threads
+- Configured a worker pool with 2 worker threads
+- Implemented task queueing when all workers are busy
+- Implemented worker availability tracking using busy/idle state
+- Implemented automatic worker replacement after worker errors
+- Added Promise-based task handling for worker results
+- Added unique task IDs for tracking worker tasks
+- Created `workerController.js` for CPU-intensive API requests
+- Created `workerRoutes.js` for Worker Thread APIs
+- Added `/api/worker/cpu` endpoint for CPU-intensive Fibonacci computation
+- Added `/api/worker/health` endpoint to verify main event-loop responsiveness
+- Integrated Worker Thread routes into the Express application
+- Verified Fibonacci correctness for `35` and `40`
+- Verified Worker Thread execution latency for CPU-intensive operations
+- Tested concurrent CPU-intensive requests using multiple parallel `curl` requests
+- Verified worker-pool concurrency with 2 active workers
+- Observed queued requests being processed as workers became available
+- Verified that the main event loop remained responsive during heavy CPU computation
+- Measured health-check response time of approximately 3–7 ms during CPU-intensive workloads
+- Successfully demonstrated CPU-bound workload isolation from the main Node.js event loop
+
+---
+
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 16 Completed**
+**Phase 1 Progress:** **Day 17 Completed**
 
 ### ✅ Completed Features
 
@@ -770,6 +806,19 @@ The backend demonstrated strong throughput under moderate concurrency and remain
 - Capacity Boundary Analysis
 - CPU & Memory Resource Analysis
 - Performance Degradation Analysis
+- Node.js Worker Threads
+- CPU-Bound Task Offloading
+- Worker Pool Architecture
+- Worker Thread Message Passing
+- Worker Task Queueing
+- Worker Concurrency Control
+- Worker Error Handling
+- Automatic Worker Replacement
+- Promise-Based Worker Task Handling
+- CPU-Intensive Fibonacci Processing
+- Event-Loop Responsiveness Testing
+- Worker Thread Concurrency Testing
+- CPU Workload Isolation
 
 ### ⏳ Upcoming Features
 
@@ -780,7 +829,6 @@ The backend demonstrated strong throughput under moderate concurrency and remain
 - Production Deployment
 - Unit Testing
 - Integration Testing
-- Node.js Cluster-Based Scaling
 
 ---
 
@@ -867,6 +915,14 @@ Key learning areas include:
 - Redis-Backed Rate Limiting
 - Shared Rate-Limit State
 - Rate Limiting in Clustered Applications
+- Node.js Worker Threads
+- CPU-Bound Task Offloading
+- Worker Pool Architecture
+- Worker Thread Message Passing
+- Worker Task Queueing
+- Worker Concurrency Control
+- Event-Loop Responsiveness
+- CPU Workload Isolation
 - CORS
 - Cross-Origin Request Security
 - Backend Security Best Practices
