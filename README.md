@@ -10,7 +10,7 @@ Throughout this journey, the project evolves from a basic Express server into a 
 
 ---
 
-# 🛠 Tech Stack
+## 🛠 Tech Stack
 
 - Node.js
 - Express.js
@@ -22,6 +22,7 @@ Throughout this journey, the project evolves from a basic Express server into a 
 - JSON Web Token (JWT)
 - Helmet
 - Express Rate Limit
+- rate-limit-redis
 - Express Validator
 - Node Cache
 - dotenv
@@ -34,11 +35,7 @@ Throughout this journey, the project evolves from a basic Express server into a 
 - Node.js Cluster
 - Autocannon
 - Connect Timeout
-- Helmet
-- Express Rate Limit
-- rate-limit-redis
 - CORS
-- Express Validator
 
 ---
 
@@ -533,9 +530,148 @@ Requests 101+   → 429 Too Many Requests
 ```
 ---
 
+## Day 16 – Load Testing & Stress Analysis
+
+### Objective
+
+Performed load, stress, and soak testing on the Node.js backend to evaluate system capacity, latency, throughput, error behavior, and long-running stability.
+
+### Testing Tool
+
+- autocannon
+- Node.js Cluster with 4 workers
+- Redis-backed caching
+- Redis-backed rate limiting
+
+### Baseline API Testing
+
+#### GET /api/products
+
+10 concurrent connections for 10 seconds:
+
+- Average latency: 4.58 ms
+- P99 latency: 17 ms
+- Average throughput: 1,987 req/s
+- Total requests: ~20,000
+
+#### GET /api/orders
+
+10 concurrent connections for 10 seconds:
+
+- Average latency: 7.72 ms
+- P99 latency: 18 ms
+- Average throughput: 1,216 req/s
+- Total requests: ~12,000
+
+#### GET /api/orders/details
+
+10 concurrent connections for 10 seconds:
+
+- Average latency: 7.57 ms
+- P99 latency: 21 ms
+- Average throughput: 1,240 req/s
+- Total requests: ~12,000
+
+### Stress Testing
+
+#### 50 Concurrent Connections
+
+- Duration: 30 seconds
+- Average latency: 18.08 ms
+- P99 latency: 48 ms
+- Throughput: ~2,689 req/s
+- Total requests: ~81,000
+
+#### 100 Concurrent Connections
+
+- Duration: 30 seconds
+- Average latency: 66.85 ms
+- P99 latency: 139 ms
+- Throughput: ~1,490 req/s
+- Total requests: ~45,000
+
+#### 200 Concurrent Connections
+
+- Duration: 30 seconds
+- Average latency: 78.46 ms
+- P99 latency: 197 ms
+- Throughput: ~2,527 req/s
+- Total requests: ~76,000
+
+#### 300 Concurrent Connections
+
+- Duration: 30 seconds
+- Average latency: 83.81 ms
+- P99 latency: 241 ms
+- Throughput: ~3,561 req/s
+- Total requests: ~107,000
+- Some non-2xx responses observed under high request volume
+
+#### 500 Concurrent Connections
+
+- Duration: 30 seconds
+- Average latency: 187.71 ms
+- P99 latency: 442 ms
+- Throughput: ~2,664 req/s
+- Total requests: ~80,000
+- Increased latency and reduced stability observed
+
+### Soak Testing
+
+#### 50 Concurrent Connections for 5 Minutes
+
+- Duration: 300 seconds
+- Total requests: ~476,000
+- Average latency: 31.04 ms
+- P99 latency: 50 ms
+- Maximum latency: 212 ms
+- Average throughput: ~1,591 req/s
+
+The backend remained responsive during the 5-minute sustained-load test without obvious progressive latency degradation.
+
+### Resource Analysis
+
+During high-concurrency testing:
+
+- Node.js worker CPU utilization increased significantly.
+- Individual workers reached approximately 100–140% CPU utilization.
+- Some workers showed increased memory consumption.
+- No continuous system-wide memory growth sufficient to conclude a memory leak was observed.
+
+The observed behavior indicates that CPU/event-loop processing pressure becomes an important limiting factor at high concurrency.
+
+### Capacity Findings
+
+The backend performs well under low-to-moderate concurrency.
+
+Latency increases significantly as concurrency approaches 100–500 simultaneous connections.
+
+The 5-minute soak test demonstrated stable behavior at 50 concurrent connections.
+
+For the current local environment, approximately 50 concurrent connections provides a more stable operating range, while higher concurrency should be treated as stress conditions rather than normal operating capacity.
+
+### Recommendations
+
+- Profile CPU-heavy endpoints using Node.js profiling tools.
+- Monitor event-loop delay in production.
+- Continue using Redis for shared caching and rate limiting.
+- Use horizontal scaling when traffic increases.
+- Monitor CPU, memory, Redis, and database utilization.
+- Establish production latency and throughput SLOs.
+- Use a reverse proxy/load balancer for distributed deployments.
+- Repeat load testing after major performance changes.
+
+### Conclusion
+
+Task 16 successfully evaluated backend behavior under baseline, stress, and sustained load.
+
+The backend demonstrated strong throughput under moderate concurrency and remained stable during a 5-minute soak test. High-concurrency testing revealed increasing latency and CPU pressure, identifying the current performance boundary and providing a baseline for future optimization and scaling.
+
+---
+
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 15 Completed**
+**Phase 1 Progress:** **Day 16 Completed**
 
 ### ✅ Completed Features
 
@@ -626,6 +762,14 @@ Requests 101+   → 429 Too Many Requests
 - Retry-After Handling
 - CORS Configuration
 - Cross-Origin Request Protection
+- Baseline Load Testing
+- Stress Testing
+- Soak Testing
+- Latency Percentile Analysis
+- Throughput Analysis
+- Capacity Boundary Analysis
+- CPU & Memory Resource Analysis
+- Performance Degradation Analysis
 
 ### ⏳ Upcoming Features
 
@@ -636,6 +780,7 @@ Requests 101+   → 429 Too Many Requests
 - Production Deployment
 - Unit Testing
 - Integration Testing
+- Node.js Cluster-Based Scaling
 
 ---
 
