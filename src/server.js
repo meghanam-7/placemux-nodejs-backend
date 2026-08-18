@@ -1,8 +1,11 @@
 const dotenv = require("dotenv");
 const http = require("http");
 const cluster = require("cluster");
-//const os = require("os");
 const { Server } = require("socket.io");
+const { createAdapter } = require("@socket.io/redis-adapter");
+const Redis = require("ioredis");
+
+const { authenticateSocket } = require("./middleware/socketAuthMiddleware");
 
 dotenv.config();
 
@@ -20,10 +23,15 @@ if (cluster.isPrimary) {
     }
 
     cluster.on("exit", (worker) => {
-        console.log(`Worker ${worker.process.pid} exited. Starting a replacement worker...`);
+        console.log(
+            `Worker ${worker.process.pid} exited. Starting a replacement worker...`
+        );
+
         cluster.fork();
     });
+
 } else {
+
     const server = http.createServer(app);
 
     const io = new Server(server, {
@@ -32,8 +40,43 @@ if (cluster.isPrimary) {
         },
     });
 
+    // Redis clients for Socket.io multi-worker communication
+    const pubClient = new Redis(process.env.REDIS_URL);
+    const subClient = pubClient.duplicate();
+
+    pubClient.on("connect", () => {
+        console.log(`Socket.io Redis publisher connected - Worker ${process.pid}`);
+    });
+
+    pubClient.on("error", (error) => {
+        console.error(
+            `Socket.io Redis publisher error - Worker ${process.pid}:`,
+            error.message
+        );
+    });
+
+    subClient.on("connect", () => {
+        console.log(`Socket.io Redis subscriber connected - Worker ${process.pid}`);
+    });
+
+    subClient.on("error", (error) => {
+        console.error(
+            `Socket.io Redis subscriber error - Worker ${process.pid}:`,
+            error.message
+        );
+    });
+
+    // Enable Redis adapter for cross-worker Socket.io events
+    io.adapter(createAdapter(pubClient, subClient));
+
+    // Authenticate every Socket.io connection
+    io.use(authenticateSocket);
+
     io.on("connection", (socket) => {
-        console.log(`Client Connected: ${socket.id}`);
+
+        console.log(
+            `Client ${socket.id} connected to Worker ${process.pid}`
+        );
 
         // Welcome Event
         socket.emit("welcome", {
@@ -42,7 +85,10 @@ if (cluster.isPrimary) {
 
         // Send Message
         socket.on("sendMessage", (data) => {
-            console.log("📩 Message Received:", data);
+            console.log(
+                `📩 Message received from ${socket.id}:`,
+                data
+            );
 
             socket.emit("messageReceived", {
                 message: `Server received: ${data.message}`,
@@ -51,9 +97,12 @@ if (cluster.isPrimary) {
 
         // Join Room
         socket.on("joinRoom", (roomName) => {
+
             socket.join(roomName);
 
-            console.log(`${socket.id} joined room: ${roomName}`);
+            console.log(
+                `${socket.id} joined room: ${roomName} on Worker ${process.pid}`
+            );
 
             socket.emit("roomJoined", {
                 message: `Joined room: ${roomName}`,
@@ -62,6 +111,11 @@ if (cluster.isPrimary) {
 
         // Room Message
         socket.on("roomMessage", ({ roomName, message }) => {
+
+            console.log(
+                `📢 Broadcasting message to room ${roomName} from ${socket.id}`
+            );
+
             io.to(roomName).emit("receiveRoomMessage", {
                 room: roomName,
                 message,
@@ -69,8 +123,11 @@ if (cluster.isPrimary) {
         });
 
         // Disconnect
-        socket.on("disconnect", () => {
-            console.log(`Client Disconnected: ${socket.id}`);
+        socket.on("disconnect", (reason) => {
+
+            console.log(
+                `Client ${socket.id} disconnected from Worker ${process.pid}. Reason: ${reason}`
+            );
         });
     });
 
@@ -80,6 +137,8 @@ if (cluster.isPrimary) {
     server.requestTimeout = 30000;
 
     server.listen(PORT, () => {
-        console.log(`Worker ${process.pid} is running on port ${PORT}`);
+        console.log(
+            `Worker ${process.pid} is running on port ${PORT}`
+        );
     });
 }
