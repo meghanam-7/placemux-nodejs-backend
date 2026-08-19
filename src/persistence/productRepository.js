@@ -25,6 +25,8 @@ async function createProduct(productData) {
             data: productData,
         });
     } catch (error) {
+        console.error("CREATE PRODUCT ERROR:", error);
+
         throw new Error(
             `Database error while creating product: ${error.message}`
         );
@@ -34,13 +36,17 @@ async function createProduct(productData) {
 // Update product
 async function updateProduct(id, productData) {
     try {
+        const productId = Number(id);
+
         return await prisma.product.update({
             where: {
-                id: Number(id),
+                id: productId,
             },
             data: productData,
         });
     } catch (error) {
+        console.error("UPDATE PRODUCT ERROR:", error);
+
         throw new Error(
             `Database error while updating product: ${error.message}`
         );
@@ -50,12 +56,16 @@ async function updateProduct(id, productData) {
 // Delete product
 async function deleteProduct(id) {
     try {
+        const productId = Number(id);
+
         return await prisma.product.delete({
             where: {
-                id: Number(id),
+                id: productId,
             },
         });
     } catch (error) {
+        console.error("DELETE PRODUCT ERROR:", error);
+
         throw new Error(
             `Database error while deleting product: ${error.message}`
         );

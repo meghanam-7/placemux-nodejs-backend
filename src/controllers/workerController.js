@@ -1,9 +1,7 @@
-const {
-    cpuWorkerPool,
-} = require("../utils/workerPool");
-
 // CPU-intensive operation using Worker Threads
 const runWorkerTask = async (req, res) => {
+    const { cpuWorkerPool } = require("../utils/workerPool");
+
     const number = Number(req.query.number) || 35;
 
     const taskId = `${process.pid}-${Date.now()}-${Math.random()}`;

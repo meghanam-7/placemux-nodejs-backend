@@ -3,6 +3,10 @@ const helmet = require("helmet");
 const compression = require("compression");
 const timeout = require("connect-timeout");
 const cors = require("cors");
+
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./docs/swagger");
+
 const { apiRateLimiter } = require("./middleware/rateLimiter");
 
 const app = express();
@@ -11,11 +15,8 @@ if (process.env.NODE_ENV === "production") {
     app.set("trust proxy", 1);
 }
 
-app.use(timeout("10s"));
-
-
-
 // Middleware
+app.use(timeout("10s"));
 app.use(express.json({ limit: "1mb" }));
 app.use(helmet());
 
@@ -43,8 +44,6 @@ app.use(
 );
 
 app.use(compression());
-app.use("/api", apiRateLimiter);
-
 
 // Import Routes
 const healthRoutes = require("./routes/healthRoutes");
@@ -55,21 +54,25 @@ const authRoutes = require("./routes/authRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const cacheMetricsRoutes = require("./routes/cacheMetricsRoutes");
 
-// Use Routes
+// Public routes
 app.use("/", healthRoutes);
 app.use("/", sampleRoutes);
+app.use("/", authRoutes);
+
+app.use(
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec)
+);
+
+// Apply API rate limiter only to /api routes
+app.use("/api", apiRateLimiter);
+
+// Protected/API routes
 app.use("/", mockRoutes);
 app.use("/", workerRoutes);
-app.use("/", authRoutes);
 app.use("/", jobRoutes);
 app.use("/", cacheMetricsRoutes);
-
-
-// app.use((req, res, next) => {
-//     if (!req.timedout) {
-//         next();
-//     }
-// });
 
 // Global production-safe error handler
 app.use((err, req, res, next) => {
@@ -91,7 +94,5 @@ app.use((err, req, res, next) => {
             : err.message || "Internal server error.",
     });
 });
-
-
 
 module.exports = app;

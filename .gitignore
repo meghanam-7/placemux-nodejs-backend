@@ -3,6 +3,7 @@ node_modules/
 
 # Environment variables
 .env
+.env.test
 
 # Logs
 *.log
@@ -11,3 +12,9 @@ node_modules/
 .DS_Store
 Thumbs.db
 /src/generated/prisma
+
+
+jest.config.jest
+
+# Test coverage
+coverage/

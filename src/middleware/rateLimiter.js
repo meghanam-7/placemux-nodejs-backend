@@ -5,7 +5,7 @@ const redisConnection = require("../config/redisConnection");
 // General API rate limiter
 const apiRateLimiter = rateLimit({
     windowMs: 60 * 1000,
-    limit: 100,
+    limit: process.env.NODE_ENV === "test" ? 1000 : 100,
 
     standardHeaders: "draft-8",
     legacyHeaders: false,
@@ -23,7 +23,7 @@ const apiRateLimiter = rateLimit({
 // Stricter limiter for authentication endpoints
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 10,
+    limit: process.env.NODE_ENV === "test" ? 1000 : 10,
 
     standardHeaders: "draft-8",
     legacyHeaders: false,
