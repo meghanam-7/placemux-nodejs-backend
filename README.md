@@ -37,10 +37,13 @@ Throughout this journey, the project evolves from a basic Express server into a 
 - Redis / Memurai
 - Autocannon
 - Connect Timeout
+- Role-Based Authorization
+- Production Environment Gating
+- Production Configuration Validation
+- HTTPS Enforcement
+- Production-Safe Error Handling
 
 ---
-
-# 📂 Project Structure
 
 # 📂 Project Structure
 
@@ -55,7 +58,8 @@ task1-node-server
 ├── src
 │   ├── config
 │   │   ├── prismaClient.js
-│   │   └── redisConnection.js
+│   │   ├── redisConnection.js
+|   |   └── productionConfig.js
 │   │
 │   ├── controllers
 │   │   ├── authController.js
@@ -69,6 +73,7 @@ task1-node-server
 │   │
 │   ├── middleware
 │   │   ├── authMiddleware.js
+|   |   ├── authorizationMiddleware.js
 │   │   ├── rateLimiter.js
 │   │   ├── socketAuthMiddleware.js
 │   │   └── validationMiddleware.js
@@ -131,25 +136,26 @@ task1-node-server
 
 # 🌐 Available APIs
 
-| Method | Endpoint | Description |
-| ------ | -------- | ----------- |
-| GET | `/health` | Check server health |
-| GET | `/hello` | Sample API response |
-| GET | `/api/users` | Returns paginated user data from PostgreSQL (Protected & Cached Route) |
-| GET | `/api/products` | Returns product data from PostgreSQL / Redis cache |
-| GET | `/api/orders` | Returns order data from PostgreSQL |
-| GET | `/api/users/orders` | Returns users with their orders |
-| GET | `/api/orders/details` | Returns orders with user and product details |
-| GET | `/api/products/orders` | Returns products with related orders |
-| POST | `/api/products` | Creates a new product and invalidates the products cache |
-| PUT | `/api/products/:id` | Updates an existing product and invalidates the products cache |
-| DELETE | `/api/products/:id` | Deletes an existing product and invalidates the products cache |
-| GET | `/api/cache/metrics` | Returns cache hit, miss, request, and latency metrics |
-| POST | `/auth/signup` | Register a new user |
-| POST | `/auth/login` | Authenticate user and generate JWT |
-| POST | `/api/jobs/email` | Adds an email-processing job to the BullMQ background queue |
-| GET | `/api/worker/cpu?number=35` | Executes a CPU-intensive Fibonacci calculation using a Worker Thread pool |
-| GET | `/api/worker/health` | Verifies that the main Node.js event loop remains responsive during CPU-intensive work |
+| Method | Endpoint | Access | Description |
+| ------ | -------- | ------ | ----------- |
+| GET | `/health` | Public | Check server health |
+| GET | `/hello` | Development only | Sample API response |
+| GET | `/api/users` | Authenticated | Returns paginated user data from PostgreSQL |
+| GET | `/api/products` | Authenticated | Returns product data from PostgreSQL / Redis cache |
+| GET | `/api/orders` | Authenticated | Returns order data from PostgreSQL |
+| GET | `/api/users/orders` | Authenticated | Returns users with their orders |
+| GET | `/api/orders/details` | Authenticated | Returns orders with user and product details |
+| GET | `/api/products/orders` | Authenticated | Returns products with related orders |
+| POST | `/api/products` | Admin | Creates a new product and invalidates the products cache |
+| PUT | `/api/products/:id` | Admin | Updates an existing product and invalidates the products cache |
+| DELETE | `/api/products/:id` | Admin | Deletes an existing product and invalidates the products cache |
+| GET | `/api/cache/metrics` | Admin | Returns cache metrics |
+| DELETE | `/api/cache/metrics` | Admin | Resets cache metrics |
+| POST | `/auth/signup` | Public | Register a new user |
+| POST | `/auth/login` | Public | Authenticate user and generate JWT |
+| POST | `/api/jobs/email` | Authenticated | Adds an email-processing job to the BullMQ background queue |
+| GET | `/api/worker/cpu?number=35` | Development only | Executes a CPU-intensive Fibonacci calculation |
+| GET | `/api/worker/health` | Development only | Verifies main event-loop responsiveness |
 
 ---
 
@@ -742,9 +748,36 @@ The backend demonstrated strong throughput under moderate concurrency and remain
 
 ---
 
+## ✅ Day 19 – Production Route Locking Backend
+
+- Audited all Express routes for authentication and authorization requirements
+- Protected authenticated API routes using JWT authentication middleware
+- Implemented role-based authorization using `requireRole()`
+- Restricted product create, update, and delete operations to `ADMIN` users
+- Restricted cache metrics access to `ADMIN` users
+- Protected email job creation with JWT authentication
+- Protected user, product, and order APIs with JWT authentication
+- Added production environment gating for development-only routes
+- Disabled `/hello` in production
+- Disabled Worker Thread CPU testing endpoint in production
+- Disabled Worker Thread health/debug endpoint in production
+- Added production configuration validation
+- Added required production environment checks
+- Added production-safe global error handling
+- Prevented internal error details from being exposed to production clients
+- Added production HTTPS enforcement
+- Configured Express `trust proxy` for production deployments behind a reverse proxy
+- Maintained Helmet security headers
+- Verified route syntax after security changes
+- Verified authentication and authorization middleware integration
+- Verified production-only route restrictions
+- Completed a final production security pass
+
+---
+
 # 🚀 Current Status
 
-**Phase 1 Progress:** **Day 18 Completed**
+**Phase 1 Progress:** **Day 19 Completed**
 
 ### ✅ Completed Features
 
@@ -866,11 +899,21 @@ The backend demonstrated strong throughput under moderate concurrency and remain
 - Multi-Worker Real-Time Communication
 - Authenticated Room Broadcasting
 - Scalable Real-Time Event Architecture
+- Role-Based Authorization
+- Admin Route Protection
+- Production Environment Gating
+- Development Route Protection
+- Production Configuration Validation
+- Production Secret Validation
+- HTTPS Enforcement
+- Production Trust Proxy Configuration
+- Production-Safe Error Handling
+- Internal Error Information Protection
+- Production Security Headers
+- Final Production Route Security Audit
 
 ### ⏳ Upcoming Features
 
-- Role-Based Authorization
-- Global Error Handling
 - Logging
 - API Documentation (Swagger)
 - Production Deployment
@@ -982,6 +1025,14 @@ Key learning areas include:
 - Backend Security Best Practices
 - API Design
 - Git & GitHub Workflow
+- Role-Based Authorization
+- Production Environment Gating
+- Production Configuration Validation
+- HTTPS Enforcement
+- Secure Error Handling
+- Production Security Headers
+- Route Access-Control Auditing
+- Production Security Auditing
 
 ---
 

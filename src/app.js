@@ -6,6 +6,11 @@ const cors = require("cors");
 const { apiRateLimiter } = require("./middleware/rateLimiter");
 
 const app = express();
+
+if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+}
+
 app.use(timeout("10s"));
 
 
@@ -13,6 +18,21 @@ app.use(timeout("10s"));
 // Middleware
 app.use(express.json({ limit: "1mb" }));
 app.use(helmet());
+
+// Enforce HTTPS in production
+app.use((req, res, next) => {
+    if (
+        process.env.NODE_ENV === "production" &&
+        !req.secure
+    ) {
+        return res.status(400).json({
+            success: false,
+            message: "HTTPS is required in production.",
+        });
+    }
+
+    next();
+});
 
 app.use(
     cors({
@@ -51,16 +71,27 @@ app.use("/", cacheMetricsRoutes);
 //     }
 // });
 
-// Graceful timeout error handler
+// Global production-safe error handler
 app.use((err, req, res, next) => {
+    console.error("Unhandled application error:", err);
+
     if (err && err.code === "ETIMEDOUT") {
         return res.status(503).json({
             success: false,
-            message: "Request timed out. Server is currently under heavy load.",
+            message: "Request timed out. Please try again later.",
         });
     }
 
-    next(err);
+    const isProduction = process.env.NODE_ENV === "production";
+
+    return res.status(500).json({
+        success: false,
+        message: isProduction
+            ? "Internal server error."
+            : err.message || "Internal server error.",
+    });
 });
+
+
 
 module.exports = app;

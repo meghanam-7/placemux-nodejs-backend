@@ -6,21 +6,25 @@ const {
     runWorkerTask,
 } = require("../controllers/workerController");
 
-router.get(
-    "/api/worker/cpu",
-    runWorkerTask
-);
+const isDevelopment = process.env.NODE_ENV !== "production";
 
-router.get(
-    "/api/worker/health",
-    (req, res) => {
-        res.status(200).json({
-            success: true,
-            message: "Main event loop is responsive",
-            processId: process.pid,
-            timestamp: Date.now(),
-        });
-    }
-);
+if (isDevelopment) {
+    router.get(
+        "/api/worker/cpu",
+        runWorkerTask
+    );
+
+    router.get(
+        "/api/worker/health",
+        (req, res) => {
+            res.status(200).json({
+                success: true,
+                message: "Main event loop is responsive",
+                processId: process.pid,
+                timestamp: Date.now(),
+            });
+        }
+    );
+}
 
 module.exports = router;

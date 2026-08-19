@@ -11,6 +11,12 @@ dotenv.config();
 
 const app = require("./app");
 
+const {
+    validateProductionConfig,
+} = require("./config/productionConfig");
+
+validateProductionConfig();
+
 const PORT = process.env.PORT;
 const NUM_WORKERS = 4;
 

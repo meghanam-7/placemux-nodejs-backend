@@ -1,8 +1,14 @@
 const express = require("express");
+
 const router = express.Router();
+
 const {
     authenticateToken,
 } = require("../middleware/authMiddleware");
+
+const {
+    requireRole,
+} = require("../middleware/authorizationMiddleware");
 
 const {
     fetchUsers,
@@ -16,37 +22,65 @@ const {
     deleteProductHandler,
 } = require("../controllers/mockController");
 
-// Users Route
+// Users
 router.get(
     "/api/users",
     authenticateToken,
     fetchUsers
 );
 
-// Products Route
-router.get("/api/products", fetchProducts);
+// Products - read access
+router.get(
+    "/api/products",
+    authenticateToken,
+    fetchProducts
+);
 
-// Create Product
-router.post("/api/products", createProductHandler);
+// Products - write access
+router.post(
+    "/api/products",
+    authenticateToken,
+    requireRole("ADMIN"),
+    createProductHandler
+);
 
-// Update Product
-router.put("/api/products/:id", updateProductHandler);
+router.put(
+    "/api/products/:id",
+    authenticateToken,
+    requireRole("ADMIN"),
+    updateProductHandler
+);
 
-// Delete Product
-router.delete("/api/products/:id", deleteProductHandler);
+router.delete(
+    "/api/products/:id",
+    authenticateToken,
+    requireRole("ADMIN"),
+    deleteProductHandler
+);
 
+// Orders
+router.get(
+    "/api/orders",
+    authenticateToken,
+    fetchOrders
+);
 
-// Orders Route
-router.get("/api/orders", fetchOrders);
+router.get(
+    "/api/users/orders",
+    authenticateToken,
+    fetchUsersWithOrders
+);
 
+router.get(
+    "/api/orders/details",
+    authenticateToken,
+    fetchOrdersWithDetails
+);
 
-// Users with Orders
-router.get("/api/users/orders", fetchUsersWithOrders);
-
-// Orders with User & Product
-router.get("/api/orders/details", fetchOrdersWithDetails);
-
-// Products with Orders
-router.get("/api/products/orders", fetchProductsWithOrders);
+router.get(
+    "/api/products/orders",
+    authenticateToken,
+    fetchProductsWithOrders
+);
 
 module.exports = router;
